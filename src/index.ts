@@ -18,33 +18,58 @@ program
   .command('config')
   .description('配置小红书 Cookie 和 User ID')
   .action(async () => {
-    const answers = await inquirer.prompt([
+    const { method } = await inquirer.prompt<{ method: 'browser' | 'manual' }>([
       {
-        type: 'input',
-        name: 'cookie',
-        message: '请输入小红书 Cookie:',
-        validate: (input: string) => {
-          if (!input || input.trim().length === 0) {
-            return '请输入有效的 Cookie';
-          }
-          return true;
-        },
-      },
-      {
-        type: 'input',
-        name: 'user_id',
-        message: '请输入你的 User ID (在个人主页 URL 中可以找到):',
-        validate: (input: string) => {
-          if (!input || input.trim().length === 0) {
-            return '请输入有效的 User ID';
-          }
-          return true;
-        },
+        type: 'rawlist',
+        name: 'method',
+        message: '请选择配置方式:',
+        choices: [
+          { name: '浏览器扫码登录 (自动获取)', value: 'browser' },
+          { name: '手动输入 Cookie 和 User ID', value: 'manual' },
+        ],
       },
     ]);
 
-    await saveConfig({ cookie: answers.cookie, user_id: answers.user_id });
-    Logger.success('Cookie 和 User ID 配置已保存');
+    if (method === 'browser') {
+      const client = new XhsClient({ cookie: '' });
+      try {
+        const { cookie, user_id } = await client.login();
+        await saveConfig({ cookie, user_id });
+        Logger.success('配置已保存 (自动提取成功)');
+      } catch (error) {
+        Logger.error(`登录失败: ${error instanceof Error ? error.message : String(error)}`);
+      } finally {
+        await client.close();
+      }
+    } else {
+      const answers = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'cookie',
+          message: '请输入小红书 Cookie:',
+          validate: (input: string) => {
+            if (!input || input.trim().length === 0) {
+              return '请输入有效的 Cookie';
+            }
+            return true;
+          },
+        },
+        {
+          type: 'input',
+          name: 'user_id',
+          message: '请输入你的 User ID (在个人主页 URL 中可以找到):',
+          validate: (input: string) => {
+            if (!input || input.trim().length === 0) {
+              return '请输入有效的 User ID';
+            }
+            return true;
+          },
+        },
+      ]);
+
+      await saveConfig({ cookie: answers.cookie, user_id: answers.user_id });
+      Logger.success('Cookie 和 User ID 配置已保存');
+    }
   });
 
 program
@@ -87,7 +112,12 @@ program
     }
 
     const client = new XhsClient(config);
-    await cleanNotes(client, action as ActionType, config.user_id);
+    await client.init();
+    try {
+      await cleanNotes(client, action as ActionType, config.user_id);
+    } finally {
+      await client.close();
+    }
   });
 
 async function cleanNotes(client: XhsClient, action: ActionType, userId?: string): Promise<void> {
