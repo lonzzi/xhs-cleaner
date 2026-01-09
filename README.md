@@ -1,124 +1,109 @@
-# 小红书批量清理工具 (XHS Cleaner)
+小红书自动取消点赞（Userscript）
 
-## 🎯 推荐使用方法
+一个基于 TypeScript + Bun 开发的油猴脚本，用于在小红书「赞过的内容」页面中，批量、可控地自动取消点赞。
 
-### 1. 使用 CLI 工具 (推荐)
+⚠️ 本脚本仅用于个人内容整理与学习研究，请勿用于任何违反平台规则的用途。
 
-通过 Playwright 自动化操作，更加稳定和强大。
+⸻
 
-**特点：**
+✨ 功能特性
+• ✅ 仅在「赞过的内容」页面生效
+• ✅ 自动向下滚动，逐条取消点赞
+• ✅ 支持 最大取消数量限制（防止误操作）
+• ✅ 支持 操作频率配置
+• ✅ 支持开启 / 停止
+• ✅ 页面内原生风格 UI（Tab 按钮 + 弹窗）
+• ✅ 使用 TypeScript 编写，结构清晰，易维护
 
-- ✅ 自动处理 API 签名 (x-s, x-s-common)
-- ✅ 批量处理，自动翻页
-- ✅ 智能延迟，防止触发风控
-- ✅ 详细的清理方案选择
+⸻
 
-**使用步骤：**
+📍 生效页面
 
-1. 复制你的小红书 Cookie
-2. 运行 `bun run start clean`
-3. 按提示操作即可
+脚本仅在以下页面生效：
 
----
+https://www.xiaohongshu.com/user/profile/{userId}?tab=liked
 
-## 📚 关于此项目
+    •	{userId} 为任意用户 ID
+    •	非「赞过」页面不会注入 UI，也不会执行任何逻辑
 
-这是一个基于 TypeScript 开发的高级 CLI 工具，通过 Playwright 驱动 headless 浏览器来实现对小红书收藏和点赞的批量清理。
+⸻
 
-### ✨ 技术特性
+🖱 使用方式 1. 安装浏览器扩展 Tampermonkey 2. 从 Greasy Fork 安装本脚本 3. 打开任意用户的「赞过的内容」页面 4. 在顶部 Tabs 最右侧看到 「自动取消」 按钮 5. 点击按钮，弹出设置弹窗 6. 配置参数后点击「开启自动取消」
 
-- 🚀 **Playwright 驱动**: 自动绕过复杂的 API 签名校验
-- 📦 **TypeScript**: 全程类型安全
-- 🎨 **高级交互**: 基于 Inquirer 和 Ora 提供极致的终端 UI 体验
-- 🔄 **批量自动化**: 支持自动加载下一页内容
-- ⏱️ **智能风控规避**: 内置随机延迟机制
-- ⚙️ **配置持久化**: 免去重复输入，支持多用户配置
+达到设定的最大数量后，脚本会自动停止。
 
-### 📋 技术栈
+⸻
 
-- **运行时**: Bun
-- **自动化**: Playwright (Chromium)
-- **语言**: TypeScript
-- **代码规范**: ESLint 9 + Prettier
-- **Git 工作流**: Husky + Commitlint + lint-staged
-- **依赖库**:
-  - commander - 命令行解析框架
-  - inquirer - 交互式命令行
-  - ora - 丝滑的加载状态显示
-  - chalk - 终端色彩增强
+⚙️ 配置项说明（弹窗）
 
----
+配置项 说明
+最大取消数量 本次运行最多取消多少个点赞
+取消频率（ms） 每次扫描 / 取消的时间间隔
+是否自动滚动 是否自动加载更多内容
+滚动频率（ms） 页面向下滚动的时间间隔
 
-## 💻 快速开始
+所有配置在运行过程中 即时生效，修改后会自动重启任务。
 
-### 安装 Bun
+⸻
 
-```bash
-curl -fsSL https://bun.sh/install | bash
-```
+🧱 技术栈
+• TypeScript
+• Bun（构建 / 打包）
+• Tampermonkey Userscript
+• 原生 DOM API（无第三方依赖）
 
-### 安装依赖并安装浏览器
+⸻
 
-```bash
+📦 本地开发 & 构建
+
+目录结构
+
+xhs-auto-unlike/
+├─ src/
+│ ├─ index.ts # Userscript 入口
+│ ├─ state.ts # 全局状态
+│ ├─ logic.ts # 核心取消逻辑
+│ ├─ ui-tab.ts # Tabs 按钮
+│ ├─ ui-modal.ts # 配置弹窗
+│ └─ utils.ts
+├─ dist/
+│ └─ xhs-auto-unlike.user.js
+└─ package.json
+
+构建命令
+
 bun install
-npx playwright install chromium
-```
+bun run build
 
-### 运行工具
+构建完成后生成：
 
-```bash
-# 配置你的 Cookie 和 User ID
-bun run start config
+dist/xhs-auto-unlike.user.js
 
-# 开始清理
-bun run start clean
-```
+该文件可直接导入 Tampermonkey 或上传至 Greasy Fork。
 
-### 代码质量维护
+⸻
 
-```bash
-# 代码检查
-bun run lint
+⚠️ 注意事项
+• 建议设置 较低的操作频率（如 ≥ 800ms），避免高频操作
+• 不建议一次性取消过多点赞
+• 小红书页面为 SPA，脚本使用 MutationObserver 监听页面变化
+• 页面结构更新可能导致脚本失效，需要适配调整
 
-# 自动修复
-bun run lint:fix
-```
+⸻
 
----
+🛠 可扩展方向（TODO）
+• 随机延迟（模拟人工操作）
+• 配置持久化（localStorage）
+• 模式切换（取消收藏 / 点赞）
+• 只处理最近 N 天的内容
+• 操作日志 / 统计信息展示
 
-## 📁 项目结构
+⸻
 
-```
-xhs-cleaner/
-├── src/
-│   ├── index.ts              # CLI 主入口
-│   ├── types/
-│   │   └── index.ts          # TypeScript 类型定义
-│   └── utils/
-│       ├── client.ts         # Playwright 封装的 API 客户端
-│       ├── config.ts         # 配置持久化
-│       └── logger.ts         # 日志系统
-├── .husky/                   # Git 拦截器
-├── eslint.config.js          # ESLint 9 配置
-├── tsconfig.json             # TS 配置
-├── README.md                 # 项目主文档
-└── BROWSER_SCRIPT.md         # 备选浏览器脚本
-```
+📄 License
 
----
+MIT License
 
-## ⚠️ 注意事项
+⸻
 
-1. **操作不可逆** - 批量取消操作无法撤销，操作前请确认。
-2. **账号安全** - Cookie 是你的登录凭证，请妥善保管，本工具不会上传任何数据。
-3. **频率限制** - 工具内置了延迟，虽然使用了 Playwright，但仍建议不要在短时间内处理极大量的数据。
-
----
-
-## 📄 许可证
-
-MIT
-
----
-
-**免责声明**: 本工具仅供学习和个人技术练习使用，请勿用于任何形式的非法用途。使用本工具产生的任何后果由使用者自行承担。
+如果你在使用过程中遇到问题，或有功能建议，欢迎提交 Issue 或自行 Fork 修改。

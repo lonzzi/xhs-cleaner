@@ -9,8 +9,7 @@
     "xhs-cleaner": "./src/index.ts"
   },
   "scripts": {
-    "start": "bun run src/index.ts",
-    "dev": "bun run src/index.ts",
+    "build": "bun run scripts/build.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
