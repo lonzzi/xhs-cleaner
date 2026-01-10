@@ -1,6 +1,7 @@
 import { state } from './state';
 import { cleanLikes } from './logic';
 import { openModal, updateToggleButton } from './ui-modal';
+import { hideProgress } from './ui-progress';
 
 let tabBtn: HTMLDivElement | null = null;
 
@@ -16,6 +17,7 @@ export function start() {
 export function stop() {
   state.enabled = false;
   if (state.cleanTimer) clearInterval(state.cleanTimer);
+  hideProgress();
   updateToggleButton();
 }
 

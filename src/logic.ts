@@ -1,4 +1,5 @@
 import { state } from './state';
+import { updateProgress } from './ui-progress';
 
 export function cleanLikes() {
   if (state.currentCount >= state.maxCount) return;
@@ -17,6 +18,7 @@ export function cleanLikes() {
       if (btn) {
         btn.click();
         state.currentCount++;
+        updateProgress();
       }
     }
   }

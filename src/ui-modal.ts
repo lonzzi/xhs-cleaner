@@ -1,5 +1,6 @@
 import { state } from './state';
 import { start, stop } from './ui-tab';
+import { showProgress, hideProgress } from './ui-progress';
 
 let modal: HTMLDivElement | null = null;
 
@@ -189,10 +190,13 @@ function createModal() {
   toggleBtn.addEventListener('click', () => {
     if (state.enabled) {
       stop();
+      hideProgress();
       toggleBtn.textContent = '开始清理';
       toggleBtn.className = 'xhs-btn xhs-btn-primary toggle';
     } else {
       start();
+      closeModal();
+      showProgress();
       toggleBtn.textContent = '停止清理';
       toggleBtn.className = 'xhs-btn xhs-btn-stop toggle';
     }
@@ -214,5 +218,6 @@ export function updateToggleButton() {
   } else {
     toggleBtn.textContent = '开始清理';
     toggleBtn.className = 'xhs-btn xhs-btn-primary toggle';
+    hideProgress();
   }
 }
