@@ -3,7 +3,9 @@ node_modules
 
 # output
 out
-dist
+dist/*.js
+dist/*.css
+!dist/xhs-cleaner.user.js
 *.tgz
 
 # code coverage
